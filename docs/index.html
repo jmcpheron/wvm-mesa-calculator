@@ -144,7 +144,6 @@
 			
 			/* Buttons */
 			.reset-btn {
-				width: 100%;
 				background-color: #d32f2f; /* WCAG AA: ~4.98:1 white-on-red */
 				color: white;
 				padding: 14px;
@@ -153,11 +152,47 @@
 				cursor: pointer;
 				font-size: 16px;
 				font-weight: bold;
-				margin-top: 30px;
 				transition: background-color 0.2s;
 			}
 			.reset-btn:hover { background-color: #b71c1c; }
-			
+
+			.print-btn {
+				background-color: #0056b3; /* WCAG AA: white-on-blue ~7:1 */
+				color: white;
+				padding: 14px;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+				font-size: 16px;
+				font-weight: bold;
+				transition: background-color 0.2s;
+			}
+			.print-btn:hover { background-color: #00408a; }
+
+			/* Print + Reset sit side by side, stacking on narrow screens */
+			.form-actions {
+				display: flex;
+				gap: 15px;
+				margin-top: 30px;
+			}
+			.form-actions button { flex: 1; margin-top: 0; }
+
+			/* A "$" sits inside each money field so it's clearly a dollar amount */
+			.amount-input { position: relative; }
+			.amount-input::before {
+				content: "$";
+				position: absolute;
+				left: 10px;
+				top: 50%;
+				transform: translateY(-50%);
+				color: #555;
+				pointer-events: none;
+			}
+			.amount-input input[type="number"] { padding-left: 22px; }
+
+			/* Shown only when printing / saving to PDF */
+			.print-only { display: none; }
+
 			/* Definitions Section Formatting */
 			.definitions h2 { text-align: center; color: #333; margin-bottom: 20px; }
 			.definitions h3 { color: #2c3e50; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-top: 30px; }
@@ -172,16 +207,39 @@
 					grid-template-columns: 1fr;
 					gap: 20px;
 				}
+				.form-actions { flex-direction: column; }
 			}
 			#logos {
 				display: flex;
 				height: 6rem;
+			}
+
+			/* Print / Save Results: a clean one-page worksheet (paper or PDF) */
+			@media print {
+				body { padding: 0; }
+				.card { border: none; margin-bottom: 10px; }
+				.subtitle, .form-actions { display: none !important; }
+				.definitions { display: none; } /* glossary is reference, not the worksheet — delete this line to include it */
+				.print-only { display: block; }
+				.print-header { text-align: center; margin-bottom: 14px; }
+				.print-header .print-title { font-weight: bold; font-size: 1.2em; }
+				.print-header #print-date { font-size: 0.9em; color: #333; margin-top: 4px; }
+				.main-column, .category-totals, .breakdown-box, .breakdown-boxes { break-inside: avoid; }
+				.highlight-red, .highlight-green, .balance-amount {
+					-webkit-print-color-adjust: exact;
+					print-color-adjust: exact;
+				}
 			}
 		</style>
 	</head>
 	<body>
 
 	  <main>
+
+		<div class="print-only print-header">
+			<div class="print-title">MESA Transfer Financial Aid &mdash; Cost of Attendance Worksheet</div>
+			<div id="print-date"></div>
+		</div>
 
 		<div class="card">
 			<div id="logos">
@@ -190,7 +248,7 @@
 			</div>
 
 			<h2 class="header-center">How to Analyze Your Transfer Financial Aid Award Letter</h2>
-			<p class="subtitle">Refreshing the page or clicking Reset will completely clear all fields.</p>
+			<p class="subtitle">Enter the dollar amounts from your award letter &mdash; just the numbers, no &ldquo;$&rdquo; needed. Nothing is saved; refreshing or clicking Reset clears every field.</p>
 			<hr>
 
 			<form id="financial-aid-form">
@@ -200,16 +258,16 @@
 						<h2 class="highlight-red"><strong>Cost of Attendance</strong></h2>
 
 						<h3>Living Expenses</h3>
-						<div class="form-group"><label for="cell_D4">Books and Supplies:</label><input id="cell_D4" type="number" min="0" step="0.01"></div>
-						<div class="form-group"><label for="cell_D5">Housing/Food:</label><input id="cell_D5" type="number" min="0" step="0.01"></div>
-						<div class="form-group"><label for="cell_D6">Personal:</label><input id="cell_D6" type="number" min="0" step="0.01"></div>
-						<div class="form-group"><label for="cell_D7">Transportation:</label><input id="cell_D7" type="number" min="0" step="0.01"></div>
-						<div class="form-group"><label for="cell_D8">Miscellaneous:</label><input id="cell_D8" type="number" min="0" step="0.01"></div>
+						<div class="form-group"><label for="cell_D4">Books and Supplies:</label><div class="amount-input"><input id="cell_D4" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>
+						<div class="form-group"><label for="cell_D5">Housing/Food:</label><div class="amount-input"><input id="cell_D5" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>
+						<div class="form-group"><label for="cell_D6">Personal:</label><div class="amount-input"><input id="cell_D6" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>
+						<div class="form-group"><label for="cell_D7">Transportation:</label><div class="amount-input"><input id="cell_D7" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>
+						<div class="form-group"><label for="cell_D8">Miscellaneous:</label><div class="amount-input"><input id="cell_D8" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>
 
 						<h3 style="margin-top: 25px;">Tuition</h3>
-						<div class="form-group"><label for="cell_D10">Systemwide fees/Tuition:</label><input id="cell_D10" type="number" min="0" step="0.01"></div>
-						<div class="form-group"><label for="cell_D11">Campus Fees:</label><input id="cell_D11" type="number" min="0" step="0.01"></div>
-						<div class="form-group"><label for="cell_D12">Other:</label><input id="cell_D12" type="number" min="0" step="0.01"></div>
+						<div class="form-group"><label for="cell_D10">Systemwide fees/Tuition:</label><div class="amount-input"><input id="cell_D10" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>
+						<div class="form-group"><label for="cell_D11">Campus Fees:</label><div class="amount-input"><input id="cell_D11" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>
+						<div class="form-group"><label for="cell_D12">Other:</label><div class="amount-input"><input id="cell_D12" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>
 
 						<div class="category-totals" style="margin-top: 30px;">
 							<h4>Living Expenses Subtotal: $ <output id="totalDisplay1">0.00</output></h4>
@@ -223,20 +281,20 @@
 						<h2 class="highlight-green"><strong>Financial Aid</strong></h2>
 
 						<h3>Gift Aid</h3>
-						<div class="form-group"><label for="cell_D15">Pell Grant:</label><input id="cell_D15" type="number" min="0" step="0.01"></div>
-						<div class="form-group"><label for="cell_D16">University Grant:</label><input id="cell_D16" type="number" min="0" step="0.01"></div>
-						<div class="form-group"><label for="cell_D17">Other Grants:</label><input id="cell_D17" type="number" min="0" step="0.01"></div>
-						<div class="form-group"><label for="cell_D18">External Scholarships:</label><input id="cell_D18" type="number" min="0" step="0.01"></div>
+						<div class="form-group"><label for="cell_D15">Pell Grant:</label><div class="amount-input"><input id="cell_D15" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>
+						<div class="form-group"><label for="cell_D16">University Grant:</label><div class="amount-input"><input id="cell_D16" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>
+						<div class="form-group"><label for="cell_D17">Other Grants:</label><div class="amount-input"><input id="cell_D17" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>
+						<div class="form-group"><label for="cell_D18">External Scholarships:</label><div class="amount-input"><input id="cell_D18" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>
 
 						<h3 style="margin-top: 25px;">Other Aid</h3>
-						<div class="form-group"><label for="cell_D21">Work Study:</label><input id="cell_D21" type="number" min="0" step="0.01"></div>
+						<div class="form-group"><label for="cell_D21">Work Study:</label><div class="amount-input"><input id="cell_D21" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>
 						<div class="form-group">
 							<label for="cell_D22"><a href="#subsidized-loans" class="reference-link">Subsidized Loans ⓘ</a>:</label>
-							<input id="cell_D22" type="number" min="0" step="0.01">
+							<div class="amount-input"><input id="cell_D22" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div>
 						</div>
 						<div class="form-group">
 							<label for="cell_D23"><a href="#unsubsidized-loans" class="reference-link">Unsubsidized Loans ⓘ</a>:</label>
-							<input id="cell_D23" type="number" min="0" step="0.01">
+							<div class="amount-input"><input id="cell_D23" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div>
 						</div>
 
 						<div class="category-totals">
@@ -269,7 +327,10 @@
 					</div>
 				</div>
 
-				<button type="reset" class="reset-btn">Clear All Data &amp; Start Over</button>
+				<div class="form-actions">
+					<button type="button" id="print-btn" class="print-btn">🖨️ Print / Save Results</button>
+					<button type="reset" class="reset-btn">Clear All Data &amp; Start Over</button>
+				</div>
 			</form>
 		</div>
 
@@ -380,6 +441,20 @@
 				// A native form reset clears fields first, so recalc on the next tick.
 				form.addEventListener('reset', () => {
 					setTimeout(calculateAll, 0);
+				});
+
+				// Print / Save Results: open the browser's print/PDF dialog.
+				const printBtn = document.getElementById('print-btn');
+				if (printBtn) {
+					printBtn.addEventListener('click', () => window.print());
+				}
+
+				// Stamp the print-only header with today's date whenever printing starts.
+				window.addEventListener('beforeprint', () => {
+					const printDate = document.getElementById('print-date');
+					if (printDate) {
+						printDate.textContent = 'Printed ' + new Date().toLocaleDateString();
+					}
 				});
 			});
 		</script>
