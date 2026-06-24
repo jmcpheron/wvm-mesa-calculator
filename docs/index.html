@@ -214,17 +214,27 @@
 				height: 6rem;
 			}
 
-			/* Print / Save Results: a clean one-page worksheet (paper or PDF) */
+			/* Print / Save Results: a compact worksheet (paper or PDF) */
 			@media print {
+				@page { margin: 0.5in; }
 				body { padding: 0; }
-				.card { border: none; margin-bottom: 10px; }
+				.card { border: none; margin: 0 0 8px 0; padding: 0; width: 100%; }
 				.subtitle, .form-actions { display: none !important; }
 				.definitions { display: none; } /* glossary is reference, not the worksheet — delete this line to include it */
 				.print-only { display: block; }
-				.print-header { text-align: center; margin-bottom: 14px; }
-				.print-header .print-title { font-weight: bold; font-size: 1.2em; }
-				.print-header #print-date { font-size: 0.9em; color: #333; margin-top: 4px; }
-				.main-column, .category-totals, .breakdown-box, .breakdown-boxes { break-inside: avoid; }
+
+				/* Keep the masthead compact so the worksheet starts on page 1 */
+				#logos { height: 3.25rem; }
+				.header-center { font-size: 1.15em; margin: 6px 0; }
+				hr { margin: 8px 0; }
+				.print-header { text-align: center; margin-bottom: 6px; }
+				.print-header .print-title { font-weight: bold; font-size: 1.1em; }
+				.print-header #print-date { font-size: 0.85em; color: #333; }
+
+				/* Only keep SMALL result boxes intact. Avoiding breaks inside the tall
+				   columns forced them off page 1, leaving a near-empty first page. */
+				.category-totals, .breakdown-box { break-inside: avoid; }
+
 				.highlight-red, .highlight-green, .balance-amount {
 					-webkit-print-color-adjust: exact;
 					print-color-adjust: exact;
