@@ -1,0 +1,18 @@
+{
+  "name": "wvm-mesa-calculator",
+  "version": "1.0.0",
+  "description": "Financial aid / cost-of-attendance calculator for the West Valley-Mission CCD MESA program. The published site lives in docs/; this tooling only runs the automated checks.",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report",
+    "serve": "http-server docs -p 4173 -c-1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.1",
+    "@playwright/test": "^1.49.1",
+    "http-server": "^14.1.1"
+  }
+}

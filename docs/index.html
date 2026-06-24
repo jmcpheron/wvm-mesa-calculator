@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>MESA Cost of Attendance Calculator</title>
+		<link rel="icon" href="data:,"><!-- no favicon; avoids a 404 in the embed -->
+
+		<style>
+			/* Base Styles */
+			* {
+				box-sizing: border-box;
+			}
+			body {
+				font-family: Arial, sans-serif;
+				margin: 0;
+				padding: 10px;
+				background-color: transparent;
+			}
+			
+			/* Container Layouts */
+			.card {
+				width: 98%;
+				margin: 0 auto 20px auto;
+				padding: 20px 30px;
+				border-radius: 8px;
+				background-color: #f9f9f9;
+				border: 1px solid #cccccc;
+			}
+			
+			/* Typography */
+			h2 { color: #333333; margin-top: 0; }
+			h3 { color: #444444; margin-top: 1.2em; margin-bottom: 0.5em; }
+			.header-center { text-align: center; }
+			.subtitle { font-size: 0.9em; color: #666; text-align: center; }
+			.text-left { text-align: left; }
+			.highlight-red { color: #b30000; }
+			.highlight-green { color: #006600; }
+			.balance-heading { text-align: right; font-size: 1.4em; }
+			.balance-amount { font-weight: bold; }
+			
+			/* Two-Column Layout for Form */
+			.main-form-grid {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 30px; /* Gap between the two main columns */
+			}
+			
+			/* Main Columns */
+			.main-column {
+				display: flex;
+				flex-direction: column;
+				padding: 20px;
+				border-radius: 8px;
+			}
+			
+			.cost-column {
+				background-color: #fffafb;
+				border: 1px solid #f5e6e8;
+			}
+			
+			.aid-column {
+				background-color: #f7fcf7;
+				border: 1px solid #e8f5e8;
+			}
+			
+			/* Forms and Inputs */
+			.form-group {
+				margin-bottom: 12px;
+			}
+			
+			label {
+				display: block;
+				margin-bottom: 4px;
+				font-weight: 500;
+				color: #555;
+				font-size: 0.95em;
+			}
+			
+			input[type="number"] {
+				width: 100%;
+				padding: 10px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				font-size: 16px;
+			}
+			
+			hr {
+				border: 0;
+				border-top: 1px solid #ddd;
+				margin: 20px 0;
+				width: 100%;
+			}
+			
+			/* Subgroup Totals Section */
+			.category-totals {
+				margin-top: auto; /* Pushes the totals to the bottom of the column */
+				background-color: #f1f1f1;
+				padding: 15px 20px;
+				border-radius: 6px;
+				border-top: 2px solid #dcdcdc;
+			}
+			
+			.category-totals h4 {
+				margin: 8px 0;
+				font-weight: normal;
+				color: #444;
+				font-size: 1.05em;
+			}
+			
+			.category-totals hr {
+				border-top: 1px dashed #ccc;
+				margin: 15px 0;
+			}
+			
+			.category-totals h3 {
+				margin: 0;
+			}
+			
+			/* Anchor Links */
+			.reference-link {
+				color: #0056b3;
+				text-decoration: underline;
+				cursor: pointer;
+			}
+			.reference-link:hover {
+				color: #003d82;
+			}
+			
+			/* Breakdown Sections */
+			.breakdown-boxes {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 20px;
+				margin-top: 20px;
+			}
+			.breakdown-box {
+				padding: 20px;
+				background-color: #e6f2ff;
+				border-radius: 6px;
+			}
+			.breakdown-box h3 { text-align: center; margin-top: 0; margin-bottom: 15px; }
+			.breakdown-box hr { border-top: 1px dashed #ccc; margin: 15px 0; }
+			
+			/* Buttons */
+			.reset-btn {
+				width: 100%;
+				background-color: #d32f2f; /* WCAG AA: ~4.98:1 white-on-red */
+				color: white;
+				padding: 14px;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+				font-size: 16px;
+				font-weight: bold;
+				margin-top: 30px;
+				transition: background-color 0.2s;
+			}
+			.reset-btn:hover { background-color: #b71c1c; }
+			
+			/* Definitions Section Formatting */
+			.definitions h2 { text-align: center; color: #333; margin-bottom: 20px; }
+			.definitions h3 { color: #2c3e50; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-top: 30px; }
+			.definitions h4 { color: #333; margin-top: 15px; margin-bottom: 5px; font-size: 1.1em; }
+			.definitions p { font-size: 0.9em; color: #666; line-height: 1.6; margin-top: 0; margin-bottom: 15px; }
+			
+			/* Mobile Breakpoints & Reordering */
+			@media (max-width: 768px) {
+				.card { padding: 15px; }
+				.breakdown-boxes { grid-template-columns: 1fr; }
+				.main-form-grid {
+					grid-template-columns: 1fr;
+					gap: 20px;
+				}
+			}
+			#logos {
+				display: flex;
+				height: 6rem;
+			}
+		</style>
+	</head>
+	<body>
+
+	  <main>
+
+		<div class="card">
+			<div id="logos">
+				<img src="assets/MESA_logo.png" alt="Mathematics, Engineering, Science Achievement (MESA) Program logo">
+				<img src="assets/MC_Logo_4C.jpg" alt="Mission College - Santa Clara logo">
+			</div>
+
+			<h2 class="header-center">How to Analyze Your Transfer Financial Aid Award Letter</h2>
+			<p class="subtitle">Refreshing the page or clicking Reset will completely clear all fields.</p>
+			<hr>
+
+			<form id="financial-aid-form">
+				<div class="main-form-grid">
+
+					<div class="main-column cost-column">
+						<h2 class="highlight-red"><strong>Cost of Attendance</strong></h2>
+
+						<h3>Living Expenses</h3>
+						<div class="form-group"><label for="cell_D4">Books and Supplies:</label><input id="cell_D4" type="number" min="0" step="0.01"></div>
+						<div class="form-group"><label for="cell_D5">Housing/Food:</label><input id="cell_D5" type="number" min="0" step="0.01"></div>
+						<div class="form-group"><label for="cell_D6">Personal:</label><input id="cell_D6" type="number" min="0" step="0.01"></div>
+						<div class="form-group"><label for="cell_D7">Transportation:</label><input id="cell_D7" type="number" min="0" step="0.01"></div>
+						<div class="form-group"><label for="cell_D8">Miscellaneous:</label><input id="cell_D8" type="number" min="0" step="0.01"></div>
+
+						<h3 style="margin-top: 25px;">Tuition</h3>
+						<div class="form-group"><label for="cell_D10">Systemwide fees/Tuition:</label><input id="cell_D10" type="number" min="0" step="0.01"></div>
+						<div class="form-group"><label for="cell_D11">Campus Fees:</label><input id="cell_D11" type="number" min="0" step="0.01"></div>
+						<div class="form-group"><label for="cell_D12">Other:</label><input id="cell_D12" type="number" min="0" step="0.01"></div>
+
+						<div class="category-totals" style="margin-top: 30px;">
+							<h4>Living Expenses Subtotal: $ <output id="totalDisplay1">0.00</output></h4>
+							<h4>Tuition Subtotal: $ <output id="totalDisplay2">0.00</output></h4>
+							<hr>
+							<h3 class="highlight-red">Total Cost of Attendance: $ <output id="totalDisplay3">0.00</output></h3>
+						</div>
+					</div>
+
+					<div class="main-column aid-column">
+						<h2 class="highlight-green"><strong>Financial Aid</strong></h2>
+
+						<h3>Gift Aid</h3>
+						<div class="form-group"><label for="cell_D15">Pell Grant:</label><input id="cell_D15" type="number" min="0" step="0.01"></div>
+						<div class="form-group"><label for="cell_D16">University Grant:</label><input id="cell_D16" type="number" min="0" step="0.01"></div>
+						<div class="form-group"><label for="cell_D17">Other Grants:</label><input id="cell_D17" type="number" min="0" step="0.01"></div>
+						<div class="form-group"><label for="cell_D18">External Scholarships:</label><input id="cell_D18" type="number" min="0" step="0.01"></div>
+
+						<h3 style="margin-top: 25px;">Other Aid</h3>
+						<div class="form-group"><label for="cell_D21">Work Study:</label><input id="cell_D21" type="number" min="0" step="0.01"></div>
+						<div class="form-group">
+							<label for="cell_D22"><a href="#subsidized-loans" class="reference-link">Subsidized Loans ⓘ</a>:</label>
+							<input id="cell_D22" type="number" min="0" step="0.01">
+						</div>
+						<div class="form-group">
+							<label for="cell_D23"><a href="#unsubsidized-loans" class="reference-link">Unsubsidized Loans ⓘ</a>:</label>
+							<input id="cell_D23" type="number" min="0" step="0.01">
+						</div>
+
+						<div class="category-totals">
+							<h4>Gift Aid Subtotal: $ <output id="totalDisplay4">0.00</output></h4>
+							<h4>Other Aid Subtotal: $ <output id="totalDisplay5">0.00</output></h4>
+							<hr>
+							<h3 class="highlight-green">Total Aid: $ <output id="totalDisplay6">0.00</output></h3>
+						</div>
+					</div>
+				</div>
+
+				<hr>
+
+				<h3 class="balance-heading">Balance Not Covered by Aid: $ <output id="totalDisplay7" class="balance-amount highlight-red">0.00</output></h3>
+
+				<div class="breakdown-boxes">
+					<div class="breakdown-box">
+						<h3><strong>Cost by Semester:</strong></h3>
+						<hr>
+						<h4>Semester 1: $ <output id="CostDisplay1">0.00</output></h4>
+						<h4>Semester 2: $ <output id="CostDisplay2">0.00</output></h4>
+					</div>
+
+					<div class="breakdown-box">
+						<h3><strong>Cost by Quarter:</strong></h3>
+						<hr>
+						<h4>Quarter 1: $ <output id="CostDisplay3">0.00</output></h4>
+						<h4>Quarter 2: $ <output id="CostDisplay4">0.00</output></h4>
+						<h4>Quarter 3: $ <output id="CostDisplay5">0.00</output></h4>
+					</div>
+				</div>
+
+				<button type="reset" class="reset-btn">Clear All Data &amp; Start Over</button>
+			</form>
+		</div>
+
+		<div class="card definitions">
+			<h2>Glossary & Definitions</h2>
+
+			<h3>General Terms</h3>
+
+			<h4>EFC (Expected Family Contribution)</h4>
+			<p>
+				While you might not see this term on your award letter, you will see it on your FAFSA or DREAM Application confirmation page, known as a Student Aid Report (SAR). This is the dollar amount that the government is estimating that your family can contribute towards your educational and personal expenses for the academic year. It includes all costs itemized under "Cost of Attendance" above.
+			</p>
+
+			<h4>Cost of Attendance</h4>
+			<p>
+				The cost of attendance is the estimation of how much funding you'll need to cover all your educational and personal costs over the course of one Academic Year. Cost of attendance varies depending on your chosen institution, your living situation, etc. The calculation tends to be fairly accurate, however you may be able to save on a variety of areas under "Living Expenses" by using resources provided to you by your college, such as a bus pass, food pantries, etc.
+			</p>
+
+			<h3>Loans and Work Study</h3>
+
+			<h4 id="subsidized-loans">Subsidized Loans</h4>
+			<p>
+				Subsidized loans are loans where the federal government is paying your student loan interest while you are in school, and for up to 6 months after you drop below 6 units. Current interest for 2026 is 6.5%, and universities offer subsidized loans of up to $5,500 per year to students with needs. Subsidized loans are only for undergraduate students but you can continue to pay them off and get the benefits through your pay off date (usually 10 years).
+			</p>
+			<p>
+				<strong>Remember 6-6-6:</strong>
+				~6% interest starts 6 months after having less than 6 units.
+			</p>
+			<p>
+				(1) If you go directly to graduate school after completing your Bachelor's degree, with a break of less than 6 months, and you enroll in at least 6 units in graduate school (or even at Mission College), you won't accrue interest.<br>
+				However, (2) if you take a break from school for longer than 6 months, or if you drop below 6 units for longer than 6 months, you will be in charge of paying interest, and the payments will begin. Subsidized loans are good loans, and better to use than a credit cards. They do go onto your credit report, so if after 6 months post graduation, you are unable to pay, please call them asap before it goes onto your credit report (within 30 days--sooner if you can).
+			</p>
+
+			<h4 id="unsubsidized-loans">Unsubsidized Loans</h4>
+			<p>
+				Unsubsidized loans begin accruing interest from the day you accept the loan.
+			</p>
+			<p>
+				<strong>How is interest accrued?</strong>
+				There are many apps online that can break this down for you. Typically, your loans are calculated with a 10 year pay back period, but you can work with the student loans office (e.g. Nelnet) to negotiate terms such as repayment options.
+				<br><br>
+				Here is a sample of a loan calculator that you can use: <br>
+				<a href="https://studentaid.gov/loan-simulator/" target="_blank">https://studentaid.gov/loan-simulator/</a><br>
+				or if you don't want to log in, here's another calculator you can use:<br>
+				<a href="https://www.bankrate.com/loans/student-loans/student-loan-calculator/" target="_blank">https://www.bankrate.com/loans/student-loans/student-loan-calculator/</a>
+			</p>
+
+			<h4>Work Study</h4>
+			<p>
+				Federal Work-Study provides part-time jobs for undergraduate and graduate students with financial need, allowing them to earn money to help pay education expenses (studentaid.gov). To take advantage of work study, you would need to apply for jobs on campus. Work study students have an advantage of getting a number of campus jobs because their wages are paid for by the federal government.
+			</p>
+		</div>
+
+	  </main>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+				const form = document.getElementById('financial-aid-form');
+
+				// Read a numeric input by id; blank/invalid fields count as 0.
+				const getVal = (id) => {
+					const el = document.getElementById(id);
+					return el && el.value ? parseFloat(el.value) : 0;
+				};
+
+				// Write a calculated dollar amount into an <output> (or input) by id.
+				const setVal = (id, val) => {
+					const el = document.getElementById(id);
+					if (el) el.value = val.toFixed(2);
+				};
+
+				// Recompute every total and the leftover balance from the current inputs.
+				const calculateAll = () => {
+					const livingExpenses = getVal('cell_D4') + getVal('cell_D5') + getVal('cell_D6') + getVal('cell_D7') + getVal('cell_D8');
+					setVal('totalDisplay1', livingExpenses);
+
+					const tuition = getVal('cell_D10') + getVal('cell_D11') + getVal('cell_D12');
+					setVal('totalDisplay2', tuition);
+
+					const totalCost = livingExpenses + tuition;
+					setVal('totalDisplay3', totalCost);
+
+					const giftAid = getVal('cell_D15') + getVal('cell_D16') + getVal('cell_D17') + getVal('cell_D18');
+					setVal('totalDisplay4', giftAid);
+
+					const otherAid = getVal('cell_D21') + getVal('cell_D22') + getVal('cell_D23');
+					setVal('totalDisplay5', otherAid);
+
+					const totalAid = giftAid + otherAid;
+					setVal('totalDisplay6', totalAid);
+
+					// Balance not covered by aid, then split across terms.
+					const balance = totalCost - totalAid;
+					setVal('totalDisplay7', balance);
+
+					const semesterSplit = balance / 2;
+					setVal('CostDisplay1', semesterSplit);
+					setVal('CostDisplay2', semesterSplit);
+
+					const quarterSplit = balance / 3;
+					setVal('CostDisplay3', quarterSplit);
+					setVal('CostDisplay4', quarterSplit);
+					setVal('CostDisplay5', quarterSplit);
+				};
+
+				form.addEventListener('input', calculateAll);
+
+				// A native form reset clears fields first, so recalc on the next tick.
+				form.addEventListener('reset', () => {
+					setTimeout(calculateAll, 0);
+				});
+			});
+		</script>
+	</body>
+</html>

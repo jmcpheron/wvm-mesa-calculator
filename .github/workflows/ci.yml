@@ -1,0 +1,37 @@
+name: checks
+
+# Runs the accessibility + calculator tests on every PR and on pushes to main.
+# This does NOT publish the site — GitHub Pages serves docs/ on its own. These
+# checks just guard merges so the calculator stays correct and accessible.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser (Chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Run accessibility + calculator tests
+        run: npm test
+
+      - name: Upload test report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

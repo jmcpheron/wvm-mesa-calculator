@@ -1,0 +1,10 @@
+# Node / test tooling — none of this belongs in the published site
+node_modules/
+/test-results/
+/playwright-report/
+/playwright/.cache/
+.playwright-mcp/
+npm-debug.log*
+
+# macOS
+.DS_Store
